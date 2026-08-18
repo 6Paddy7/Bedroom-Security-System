@@ -35,6 +35,18 @@ void loop() {
   lcd.print(distance);
   lcd.print(" cm  ");
 
+  if (distance < 10) {
+
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("ALERT!"); 
+    lcd.setCursor(0, 2);
+    lcd.print("Intruder Detected!");
+
+    while (true) {
+    }
+  }
+
   delay(1000);
-  
+
 }
