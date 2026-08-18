@@ -52,15 +52,23 @@ void loop() {
   long duration = pulseIn(echoPin, HIGH);
   long distance = duration * 0.034 / 2;
   
-  if (distance < 10) {
+  if (distance < 10) {    
+
+    char key = keypad.getKey();
 
     delay(250);
 
     lcd.clear();
     lcd.setCursor(0, 1);
-    lcd.print("ALERT!"); 
-    lcd.setCursor(0, 2);
-    lcd.print("Intruder Detected!");
+    lcd.print("Intruder Detected!"); 
+    
+    delay(250);
+
+    if (key) {
+     lcd.setCursor(cursorPosition, 1);
+     lcd.print(key);  
+     cursorPosition++;
+    }
 
   }
 
