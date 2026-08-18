@@ -30,12 +30,10 @@ void loop() {
 
   long duration = pulseIn(echoPin, HIGH);
   long distance = duration * 0.034 / 2;
-  lcd.setCursor(0, 1);
-  lcd.print("Distance: ");
-  lcd.print(distance);
-  lcd.print(" cm  ");
-
+  
   if (distance < 10) {
+
+    delay(250);
 
     lcd.clear();
     lcd.setCursor(0, 1);
@@ -43,10 +41,19 @@ void loop() {
     lcd.setCursor(0, 2);
     lcd.print("Intruder Detected!");
 
-    while (true) {
-    }
   }
 
-  delay(1000);
+  else {
 
+    delay(250);
+
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Distance: ");
+    lcd.print(distance);
+    lcd.print(" cm  ");
+
+    delay(1000);
+
+  }
 }
