@@ -23,11 +23,10 @@ byte colPins[COLS] = {6, 7, 8, 9};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 int cursorPosition = 0;
+bool intruderDetected = false;
 char enteredCode[7];
 
 void setup() {
-
-  char key = keypad.getKey();
 
   Serial.begin(9600);
 
@@ -42,49 +41,51 @@ void setup() {
 
 void loop() {
 
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
+  while (intruderDetected == false) {
 
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
 
-  long duration = pulseIn(echoPin, HIGH);
-  long distance = duration * 0.034 / 2;
-  
-  if (distance < 10) {    
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
 
-    char key = keypad.getKey();
-
-    delay(250);
-
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Intruder Detected!"); 
-    lcd.setCursor(0, 1);
-    lcd.print("Enter Pincode: ");
-    
-    delay(250);
-
-    if (key) {
-     lcd.setCursor(cursorPosition, 1);
-     lcd.print(key);  
-     cursorPosition++;
-    }
-
-  }
-
-  else {
-
-    delay(250);
+    long duration = pulseIn(echoPin, HIGH);
+    long distance = duration * 0.034 / 2;
 
     lcd.clear();
     lcd.setCursor(0, 1);
     lcd.print("Distance: ");
     lcd.print(distance);
-    lcd.print(" cm  ");
+    lcd.print(" cm");
 
-    delay(1000);
+    delay(250);
 
+    if (distance < 10) {
+
+      intruderDetected = true;
+
+      lcd.clear();
+
+      lcd.setCursor(0, 0);
+      lcd.print("Intruder Detected!");
+
+      delay(250);
+
+      lcd.setCursor(0, 1);
+      lcd.print("Enter Pincode:");
+
+      cursorPosition = 0;
+    }
+  }
+
+  char key = keypad.getKey();
+
+  if (key) {
+
+    lcd.setCursor(cursorPosition, 2);
+    lcd.print(key);
+
+    cursorPosition++;
   }
 }
