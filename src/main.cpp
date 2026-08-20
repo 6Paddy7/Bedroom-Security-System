@@ -66,13 +66,13 @@ void loop() {
       intruderDetected = true;
 
       lcd.clear();
-
-      lcd.setCursor(0, 0);
+      lcd.setCursor(0, 1);
       lcd.print("Intruder Detected!");
 
-      delay(250);
+      delay(3000);
 
-      lcd.setCursor(0, 1);
+      lcd.clear();
+      lcd.setCursor(0, 0);
       lcd.print("Enter Pincode:");
 
       cursorPosition = 0;
@@ -95,19 +95,30 @@ void loop() {
       enteredCode[6] = '\0';
 
       if (strcmp(enteredCode, "67**67") == 0) {
+
         delay(500);
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Alarm Disarmed!");
 
-        while (true){
-        }
+        delay(3000);
+
+        intruderDetected = false; 
 
       } else {
         delay(500);
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Pincode Incorrect!");
+
+        delay(1500);
+
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Enter pincode: ");
+
+        cursorPosition = 0;
+        enteredCode[0] = '\0';
       }
       }
     } 
