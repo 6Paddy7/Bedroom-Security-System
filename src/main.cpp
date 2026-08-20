@@ -53,7 +53,7 @@ void loop() {
     long duration = pulseIn(echoPin, HIGH);
     long distance = duration * 0.034 / 2;
 
-    lcd.clear();
+    lcd.clear(); 
     lcd.setCursor(0, 1);
     lcd.print("Distance: ");
     lcd.print(distance);
@@ -76,6 +76,7 @@ void loop() {
       lcd.print("Enter Pincode:");
 
       cursorPosition = 0;
+
     }
   }
 
@@ -86,6 +87,28 @@ void loop() {
     lcd.setCursor(cursorPosition, 2);
     lcd.print(key);
 
+    enteredCode[cursorPosition] = key;
     cursorPosition++;
+
+    if (cursorPosition >= 6) {
+
+      enteredCode[6] = '\0';
+
+      if (strcmp(enteredCode, "67**67") == 0) {
+        delay(500);
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Alarm Disarmed!");
+
+        while (true){
+        }
+
+      } else {
+        delay(500);
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Pincode Incorrect!");
+      }
+      }
+    } 
   }
-}
