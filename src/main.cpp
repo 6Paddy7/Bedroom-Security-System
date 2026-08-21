@@ -107,7 +107,28 @@ void loop() {
 
     }
 
+    unsigned long codeStartTime = millis();
+    int lastTimeLeft = -1;
+
     while (systemArmed == true && intruderDetected == true && codeRequired == false) {
+
+        unsigned long elapsedTime = (millis() - codeStartTime) / 1000;
+        int timeLeft = 30 - elapsedTime;
+
+        if (timeLeft < 0) {
+            timeLeft = 0;
+        }
+
+        if (timeLeft != lastTimeLeft) {
+
+            lcd.setCursor(17, 2);
+            lcd.print("   ");
+
+            lcd.setCursor(17, 2);
+            lcd.print(timeLeft);
+
+            lastTimeLeft = timeLeft;
+    }
 
         char key = keypad.getKey();
 
