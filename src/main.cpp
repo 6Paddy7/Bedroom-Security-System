@@ -43,23 +43,37 @@ void setup() {
 }
 
 void loop() {
+    
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("PRESS KEY TO");
+    lcd.setCursor(0, 1);
+    lcd.print("ACTIVATE SECURITY");
+    lcd.setCursor(0, 2);
+    lcd.print("SYSTEM: ");
 
     while (systemArmed == false) {
 
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Activate");
-        lcd.setCursor(0, 1);
-        lcd.print("Security System: ");
-
         char key = keypad.getKey();
 
-        if (key == '#'){
+        if (key == '?'){
             systemArmed = true;
         }
     }
 
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("SYSTEM ARMED...");
+    delay(2000);
+
     while (systemArmed == true && intruderDetected == false) {
+        
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("SCANNING");
+        lcd.setCursor(0, 2);
+        lcd.print("FOR INTRUDERS...");
+        delay(750);      
 
         digitalWrite(trigPin, LOW);
         delayMicroseconds(2);
@@ -70,12 +84,6 @@ void loop() {
 
         long duration = pulseIn(echoPin, HIGH);
         long distance = duration * 0.034 / 2;
-
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("System Armed");
-        lcd.setCursor(0, 2);
-        lcd.print("Scanning...");
 
         if (distance < 10) {
             intruderDetected = true;
@@ -93,7 +101,7 @@ void loop() {
 
         lcd.clear();
         lcd.setCursor(0, 0);
-        lcd.print("Enter code: ");
+        lcd.print("ENTER CODE: ");
 
         codeRequired = false;
 
@@ -120,24 +128,26 @@ void loop() {
                     delay(500);
                     lcd.clear();
                     lcd.setCursor(0, 1);
-                    lcd.print("Alarm Disarmed!");
+                    lcd.print("ALARM DEACTIVATED...");
 
                     delay(3000);
 
                     systemArmed = false;
                     intruderDetected = false;
+                    cursorPosition = 0;
+                    enteredCode[0] = '\0';
 
                 }else{
                     delay(500);
                     lcd.clear();
                     lcd.setCursor(0, 1);
-                    lcd.print("Pincode Incorrect!");
+                    lcd.print("CODE INCORRECT!");
 
                     delay(1500);
 
                     lcd.clear();
                     lcd.setCursor(0, 0);
-                    lcd.print("Enter pincode: ");
+                    lcd.print("ENTER CODE: ");
 
                     cursorPosition = 0;
                     enteredCode[0] = '\0';
