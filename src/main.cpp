@@ -1,5 +1,5 @@
-#include <Arduino.h> 
-#include <LiquidCrystal_I2C.h> 
+#include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -15,111 +15,134 @@ char keys[ROWS][COLS] = {
   {'4', '5', '6', '!'},
   {'7', '8', '9', '@'},
   {'*', '0', '#', '?'}
-};
+}; 
 
 byte rowPins[ROWS] = {5, 4, 3, 2};
-byte colPins[COLS] = {6, 7, 8, 9};
+byte colPins[COLS] = {6, 7, 8, 9}; 
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 int cursorPosition = 0;
-bool intruderDetected = false;
 char enteredCode[7];
+
+bool intruderDetected = false; 
+bool systemArmed = false; 
+bool codeRequired = false;
 
 void setup() {
 
-  Serial.begin(9600);
+    Serial.begin(9600);
 
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
 
-  lcd.init();
-  lcd.backlight();
-  lcd.setCursor(0, 0);
+    lcd.init();
+    lcd.backlight();
+    lcd.setCursor(0, 0);
 
 }
 
 void loop() {
 
-  while (intruderDetected == false) {
-
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-
-    long duration = pulseIn(echoPin, HIGH);
-    long distance = duration * 0.034 / 2;
-
-    lcd.clear(); 
-    lcd.setCursor(0, 1);
-    lcd.print("Distance: ");
-    lcd.print(distance);
-    lcd.print(" cm");
-
-    delay(250);
-
-    if (distance < 10) {
-
-      intruderDetected = true;
-
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("Intruder Detected!");
-
-      delay(3000);
-
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Enter Pincode:");
-
-      cursorPosition = 0;
-
-    }
-  }
-
-  char key = keypad.getKey();
-
-  if (key) {
-
-    lcd.setCursor(cursorPosition, 2);
-    lcd.print(key);
-
-    enteredCode[cursorPosition] = key;
-    cursorPosition++;
-
-    if (cursorPosition >= 6) {
-
-      enteredCode[6] = '\0';
-
-      if (strcmp(enteredCode, "67**67") == 0) {
-
-        delay(500);
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("Alarm Disarmed!");
-
-        delay(3000);
-
-        intruderDetected = false; 
-
-      } else {
-        delay(500);
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("Pincode Incorrect!");
-
-        delay(1500);
+    while (systemArmed == false) {
 
         lcd.clear();
         lcd.setCursor(0, 0);
-        lcd.print("Enter pincode: ");
+        lcd.print("Activate");
+        lcd.setCursor(0, 1);
+        lcd.print("Security System: ");
 
-        cursorPosition = 0;
-        enteredCode[0] = '\0';
-      }
-      }
-    } 
-  }
+        char key = keypad.getKey();
+
+        if (key == '#'){
+            systemArmed = true;
+        }
+    }
+
+    while (systemArmed == true && intruderDetected == false) {
+
+        digitalWrite(trigPin, LOW);
+        delayMicroseconds(2);
+
+        digitalWrite(trigPin, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(trigPin, LOW);
+
+        long duration = pulseIn(echoPin, HIGH);
+        long distance = duration * 0.034 / 2;
+
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("System Armed");
+        lcd.setCursor(0, 2);
+        lcd.print("Scanning...");
+
+        if (distance < 10) {
+            intruderDetected = true;
+            codeRequired = true;
+        }
+    }
+
+    while (intruderDetected == true && codeRequired == true) {
+
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("INTRUDER DETECTED!");
+        
+        delay(2000);
+
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Enter code: ");
+
+        codeRequired = false;
+
+    }
+
+    while (systemArmed == true && intruderDetected == true && codeRequired == false) {
+
+        char key = keypad.getKey();
+
+        if (key) {
+
+            lcd.setCursor(cursorPosition, 2);
+            lcd.print(key);
+
+            enteredCode[cursorPosition] = key;
+            cursorPosition++;
+
+            if (cursorPosition >= 6) {
+
+                enteredCode[6] = '\0'; 
+
+                if (strcmp(enteredCode, "67**67") == 0) {
+
+                    delay(500);
+                    lcd.clear();
+                    lcd.setCursor(0, 1);
+                    lcd.print("Alarm Disarmed!");
+
+                    delay(3000);
+
+                    systemArmed = false;
+                    intruderDetected = false;
+
+                }else{
+                    delay(500);
+                    lcd.clear();
+                    lcd.setCursor(0, 1);
+                    lcd.print("Pincode Incorrect!");
+
+                    delay(1500);
+
+                    lcd.clear();
+                    lcd.setCursor(0, 0);
+                    lcd.print("Enter pincode: ");
+
+                    cursorPosition = 0;
+                    enteredCode[0] = '\0';
+                }
+            }
+        }
+    }
+}
